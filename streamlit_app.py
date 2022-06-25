@@ -24,23 +24,24 @@ fruits_to_show = my_fruit_list.loc[fruits_selected]
 # Display the table on the page.
 streamlit.dataframe(fruits_to_show)
 
-
 # New section to display data using API
 streamlit.header("Fruityvice Fruit Advice!")
 
-# get user input
-fruit_choice = streamlit.text_input('What fruit would you like information about?','Kiwi')
-streamlit.write('The user entered ', fruit_choice)
-
-fruityvice_response = requests.get("https://fruityvice.com/api/fruit/"+fruit_choice)
+try:
+  fruit_choice = streamlit.text_input('What fruit would you like information about?')
+  if not fruit_choice:
+    streamlit.error("Please select a fruit to get information")
+  else:
+    fruityvice_response = requests.get("https://fruityvice.com/api/fruit/"+fruit_choice)
+    # show the data in a more presentable manner
+    fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
+    # present the output in a table
+    streamlit.dataframe(fruityvice_normalized)
+except URLError as e:
+  streamlit.error()
 
 # shows data in a row
 #streamlit.text(fruityvice_response.json())
-
-# show the data in a more presentable manner
-fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
-# present the output in a table
-streamlit.dataframe(fruityvice_normalized)
 
 
 # test to query our metadata
