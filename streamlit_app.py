@@ -24,6 +24,12 @@ fruits_to_show = my_fruit_list.loc[fruits_selected]
 # Display the table on the page.
 streamlit.dataframe(fruits_to_show)
 
+# create a function
+def get_fruityvice_data(this_fruit_choice):
+  fruityvice_response = requests.get("https://fruityvice.com/api/fruit/"+this_fruit_choice)
+  fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
+  return fruityvice_normalized
+  
 # New section to display data using API
 streamlit.header("Fruityvice Fruit Advice!")
 
@@ -32,17 +38,10 @@ try:
   if not fruit_choice:
     streamlit.error("Please select a fruit to get information")
   else:
-    fruityvice_response = requests.get("https://fruityvice.com/api/fruit/"+fruit_choice)
-    # show the data in a more presentable manner
-    fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
-    # present the output in a table
-    streamlit.dataframe(fruityvice_normalized)
+    back_from_function = get_fruityvice_data(fruit_choice)
+    streamlit.dataframe(back_from_function)
 except URLError as e:
   streamlit.error()
-
-# shows data in a row
-#streamlit.text(fruityvice_response.json())
-
 
 # test to query our metadata
 my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
